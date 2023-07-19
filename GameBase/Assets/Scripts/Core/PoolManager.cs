@@ -16,6 +16,7 @@ class Pool
             if(_root = null)
             {
                 GameObject go = new GameObject() { name = $"@{_prefabs.name}Pool" };
+                _root = go.transform;
             }
 
             return _root;

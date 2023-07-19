@@ -13,6 +13,7 @@ public class MonsterController : BaseController
         if(Timer <= 0)
         {
             Timer = 2.0f;
+            Managers.Object.Despawn(this);
         }
     }
 }

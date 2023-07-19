@@ -51,26 +51,33 @@ public class ResourceManager
         
     }
 
-    public void LoadAsync<T>(string key, Action<T> callback = null) where T : UnityEngine.Object
+    public void Destroy(GameObject go)
+    {
+        if (go == null) return;
+        if (Managers.Pool.Push(go)) return;
+
+        Object.Destroy(go);
+    }
+
+    public void LoadAsync<T>(string Key, Action<T> callback = null) where T : UnityEngine.Object
     {
         string loadKey = Key;
-        if (key.Contains(".sprite"))
-            loadKey = $"{Key}[{key.Replace(".sprite", "")}]";
+        if (Key.Contains(".sprite"))
+            loadKey = $"{Key}[{Key.Replace(".sprite", "")}]";
 
         var asyncOperation = Addressables.LoadAssetAsync<T>(loadKey);
 
         asyncOperation.Completed += (op) =>
         {
-            if (_resources.TryGetValue(key, out Object resource))
+            if (_resources.TryGetValue(Key, out Object resource))
             {
                 callback?.Invoke(op.Result);
                 return;
             }
-        }
 
-        _resources.Add(key, op.Result);
-        callback?.Invoke(op.Result);
-
+            _resources.Add(Key, op.Result);
+            callback?.Invoke(op.Result);
+        };
     }
 
     public void LoadAllAsync<T>(string label, Action<string, int, int> callback) where T : UnityEngine.Object
@@ -83,21 +90,25 @@ public class ResourceManager
 
             int totalCount = op.Result.Count;
 
-            foreach(var result in op.Result)
+            foreach (var result in op.Result)
             {
-                if(result.PrimaryKey.Contains(".sprite"))
+                if (result.PrimaryKey.Contains(".sprite"))
                 {
                     LoadAsync<Sprite>(result.PrimaryKey, (obj) =>
                     {
                         loadCount++;
-                        callback?.Invoke(result.PrimaryKey, loadCount, totalCount)
+                        callback?.Invoke(result.PrimaryKey, loadCount, totalCount);
                     });
                 }
                 else
                 {
-
+                    LoadAsync<T>(result.PrimaryKey, (obj) =>
+                    {
+                        loadCount++;
+                        callback?.Invoke(result.PrimaryKey, loadCount, totalCount);
+                    });
                 }
             }
-        }
+        };
     }
 }

@@ -25,6 +25,8 @@ public class Managers : MonoBehaviour
 
     PoolManager _pool = new PoolManager();
     ResourceManager _resource = new ResourceManager();
-
+    ObjectManager _object = new ObjectManager();
     public static PoolManager Pool { get { return Instance?._pool; } }
+    public static ResourceManager Resource { get { return Instance?._resource; } }
+    public static ObjectManager Object { get { return Instance?._object; } }
 }
